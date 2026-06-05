@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>Wordwall Style — Переміщення</title>
+<style>
+body{
+margin:0;
+font-family:Arial,sans-serif;
+background:linear-gradient(135deg,#dfefff,#f8fbff);
+}
+.wrapper{
+max-width:950px;
+margin:20px auto;
+background:white;
+padding:25px;
+border-radius:18px;
+box-shadow:0 8px 20px rgba(0,0,0,.18);
+}
+h1{text-align:center;color:#1565c0}
+.progress{
+height:18px;background:#dce8ff;border-radius:12px;
+overflow:hidden;margin-bottom:15px;
+}
+#bar{
+height:100%;width:0%;
+background:linear-gradient(90deg,#43a047,#81c784);
+transition:.4s;
+}
+.card{
+padding:15px;
+border-radius:14px;
+background:#f7fbff;
+animation:fade .4s;
+}
+@keyframes fade{
+from{opacity:0;transform:translateY(12px);}
+to{opacity:1;transform:translateY(0);}
+}
+button{
+display:block;
+width:100%;
+padding:12px;
+margin:8px 0;
+border:none;
+border-radius:12px;
+font-size:17px;
+cursor:pointer;
+background:#e3f2fd;
+transition:.25s;
+}
+button:hover{
+transform:translateY(-2px) scale(1.02);
+box-shadow:0 5px 12px rgba(0,0,0,.18);
+}
+.ok{background:#4caf50!important;color:white;animation:pop .3s;}
+.bad{background:#e53935!important;color:white;animation:shake .3s;}
+@keyframes pop{
+0%{transform:scale(.8)}100%{transform:scale(1)}
+}
+@keyframes shake{
+0%{transform:translateX(-5px)}
+25%{transform:translateX(5px)}
+50%{transform:translateX(-5px)}
+75%{transform:translateX(5px)}
+100%{transform:translateX(0)}
+}
+#finish{display:none;text-align:center;}
+.medal{font-size:60px;}
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+<h1>🎯 Геометрія 9 клас</h1>
+
+<div class="progress"><div id="bar"></div></div>
+
+<p id="info"></p>
+
+<div class="card">
+<h2 id="question"></h2>
+<div id="answers"></div>
+<p id="message"></p>
+</div>
+
+<button onclick="nextQuestion()">➡ Наступне питання</button>
+
+<div id="finish"></div>
+
+</div>
+
+<script>
+
+const bank=[
+["У яку фігуру переходить квадрат?",["Квадрат","Ромб","Прямокутник"],0],
+["Образ прямої:",["Пряма","Крива"],0],
+["Образ відрізка:",["Відрізок","Промінь"],0],
+["Чи зберігаються кути?",["Так","Ні"],0],
+["Чи зберігається площа?",["Так","Ні"],0],
+["Чи зберігається периметр?",["Так","Ні"],0],
+["Чи існує рух 60°→62°?",["Так","Ні"],1],
+["Чи існує рух 45°→45°?",["Так","Ні"],0],
+["Образ кола:",["Коло","Еліпс"],0],
+["Образ трикутника:",["Трикутник","Чотирикутник"],0],
+["Паралельне перенесення є...",["Переміщенням","Деформацією"],0],
+["Поворот є...",["Переміщенням","Стисненням"],0],
+["Осьова симетрія є...",["Переміщенням","Масштабуванням"],0],
+["Центральна симетрія є...",["Переміщенням","Деформацією"],0],
+["Переміщення зберігає...",["Відстані і кути","Лише колір"],0],
+["Образ променя:",["Промінь","Відрізок"],0],
+["Чи змінюється форма фігури?",["Так","Ні"],1],
+["Чи змінюється розмір фігури?",["Так","Ні"],1],
+["Для рівних фігур сторони...",["Рівні","Різні"],0],
+["Для рівних фігур кути...",["Рівні","Довільні"],0],
+["Чи може коло перейти в еліпс?",["Ні","Так"],0],
+["Чи може квадрат перейти в ромб?",["Ні","Так"],0],
+["Катети 3 і 4 після руху:",["3 і 4","6 і 8"],0],
+["Рух ще називають...",["Ізометрією","Деформацією"],0],
+["Переміщення — це...",["Перетворення, що зберігає відстані","Будь-яке перетворення"],0]
+];
+
+let order=[...bank.keys()].sort(()=>Math.random()-0.5).slice(0,20);
+let current=0;
+let score=0;
+let locked=false;
+let sec=0;
+
+setInterval(()=>{
+ if(document.getElementById("finish").style.display!="block"){
+  document.getElementById("info").innerHTML=
+  `Питання ${current+1} із 20 | ⏱ ${sec++} c`;
+ }
+},1000);
+
+function load(){
+locked=false;
+document.getElementById("bar").style.width=(current/20*100)+"%";
+let q=bank[order[current]];
+document.getElementById("question").innerHTML=q[0];
+document.getElementById("message").innerHTML="";
+let html="";
+q[1].forEach((a,i)=>{
+ html+=`<button onclick="check(${i})">${a}</button>`;
+});
+document.getElementById("answers").innerHTML=html;
+}
+
+function check(i){
+if(locked)return;
+locked=true;
+let q=bank[order[current]];
+let btns=document.querySelectorAll("#answers button");
+if(i===q[2]){
+ score++;
+ btns[i].classList.add("ok");
+ document.getElementById("message").innerHTML="✅ Правильно!";
+}else{
+ btns[i].classList.add("bad");
+ btns[q[2]].classList.add("ok");
+ document.getElementById("message").innerHTML=
+ "❌ Правильна відповідь підсвічена.";
+}
+}
+
+function nextQuestion(){
+if(!locked)return;
+current++;
+if(current>=20){
+finish();
+return;
+}
+load();
+}
+
+function finish(){
+document.querySelector(".card").style.display="none";
+document.querySelector("button").style.display="none";
+document.getElementById("bar").style.width="100%";
+
+let p=Math.round(score/20*100);
+let medal="📚";
+if(p>=90) medal="🥇";
+else if(p>=75) medal="🥈";
+else if(p>=60) medal="🥉";
+
+document.getElementById("finish").style.display="block";
+document.getElementById("finish").innerHTML=`
+<div class='medal'>${medal}</div>
+<h2>Тренажер завершено!</h2>
+<h2>${score} із 20</h2>
+<h1>${p}%</h1>
+<p>${p>=90?"Відмінний результат!":
+p>=75?"Добрий результат!":
+p>=60?"Непогано!":"Потрібно ще потренуватися!"}</p>
+<button onclick="location.reload()">🔄 Пройти ще раз</button>
+`;
+}
+
+load();
+
+</script>
+</body>
+</html>
